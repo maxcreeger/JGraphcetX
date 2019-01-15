@@ -3,7 +3,13 @@
   <groupId>com.beetlekhi</groupId>
   <artifactId>JGraphcetX</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <description>This Package leverages the JGraphX library to display, animate, and edit grafcets created in JGrafcet</description>
   <dependencies>
+  	<dependency>
+	    <groupId>com.beetlekhi</groupId>
+	    <artifactId>JGrafcet</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+	</dependency>
   	<dependency>
 	    <groupId>com.github.vlsi.mxgraph</groupId>
 	    <artifactId>jgraphx</artifactId>
@@ -30,4 +36,9 @@
       </plugin>
     </plugins>
   </build>
+  <name>JGraphcetX</name>
+  <inceptionYear>2018</inceptionYear>
+  <organization>
+  	<name>Beetle Khi</name>
+  </organization>
 </project>
