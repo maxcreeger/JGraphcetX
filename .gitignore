@@ -1,4 +1,10 @@
-/bin/
-/.classpath
-/.project
 /target/
+/bin/
+/resources/generated/
+/resources/result/
+/.settings/
+.project
+.classpath
+test-output/
+node_modules/**
+.orig
