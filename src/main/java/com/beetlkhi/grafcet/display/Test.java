@@ -1,8 +1,9 @@
-package test;
+package com.beetlkhi.grafcet.display;
 
 import java.awt.Dimension;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -12,6 +13,13 @@ import javax.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.beetlekhi.grafcet.model.Actions;
+import com.beetlekhi.grafcet.model.Executed;
+import com.beetlekhi.grafcet.model.Grafcet;
+import com.beetlekhi.grafcet.model.GrafcetUtils;
+import com.beetlekhi.grafcet.model.Required;
+import com.beetlekhi.grafcet.model.Step;
+import com.beetlekhi.grafcet.model.Transition;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxModelCodec;
@@ -22,19 +30,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
-import jgrafcet.destructured.GrafcetReader;
-import parsing.Actions;
-import parsing.Convergence;
-import parsing.Divergence;
-import parsing.Execute;
-import parsing.Grafcet;
-import parsing.Links;
-import parsing.Step;
-import parsing.Step2Transition;
-import parsing.Transition;
-import parsing.Transtion2Step;
-
-public class Test extends GrafcetReader {
+public class Test {
 
     public static void main(String[] arg) throws InterruptedException, JAXBException {
         testLoadXML();
@@ -43,11 +39,11 @@ public class Test extends GrafcetReader {
     }
 
     public static void testLoadXML() throws JAXBException, InterruptedException {
-        displayInJGraph(new File("C:\\Users\\Marmotte\\Git\\JGrafcet\\resources\\test\\testGrafcet.xml"));
+        displayInJGraph(new File("C:\\Users\\Marmotte\\Git\\JGraphcetX\\src\\main\\resources\\jgrafcetxTest.xml"));
     }
 
     public static void displayInJGraph(File file) throws JAXBException {
-        Grafcet grafcetDAO = read(file);
+        Grafcet grafcetDAO = GrafcetUtils.readGrafcetFromXML(file);
 
         mxGraph graph = new mxGraph() {
             @Override
@@ -91,60 +87,54 @@ public class Test extends GrafcetReader {
             Object tran = graph.insertVertex(parent, null, transitionDAO, transitionDAO.getX() * 100, transitionDAO.getY() * 100, 80, 12, "fillColor=black");
             graphTransitions.put(transitionDAO.getNum(), tran);
             daoTransitions.put(transitionDAO.getNum(), transitionDAO);
-        }
 
-        // Link
-        Links linksDAO = grafcetDAO.getLinks();
-        for (Object someLink : linksDAO.getStep2TransitionOrDivergenceOrConvergence()) {
-            if (someLink instanceof Step2Transition) {
-                Step2Transition step2transitionDAO = (Step2Transition) someLink;
-                Object step = graphSteps.get(step2transitionDAO.getStep());
-                Object transition = graphTransitions.get(step2transitionDAO.getTransition());
-                graph.insertEdge(parent, null, step2transitionDAO, step, transition);
-                System.out.println("Adding link: S" + step.getClass());
-            } else if (someLink instanceof Transtion2Step) {
-                Transtion2Step transition2stepDAO = (Transtion2Step) someLink;
-                Object transition = graphTransitions.get(transition2stepDAO.getTransition());
-                Object step = graphSteps.get(transition2stepDAO.getStep());
-                graph.insertEdge(parent, null, transition2stepDAO, transition, step);
-            } else if (someLink instanceof Divergence) {
-                Divergence divergenceDAO = (Divergence) someLink;
-                Object graphTransition = graphTransitions.get(divergenceDAO.getTransition());
-                Transition daoTransition = daoTransitions.get(divergenceDAO.getTransition());
-                // Compute concentrator span
-                int xMin = daoTransition.getX();
-                int xMax = daoTransition.getX();
-                for (Execute executeDAO : divergenceDAO.getExecute()) {
-                    xMin = Math.min(xMin, daoSteps.get(executeDAO.getStep()).getX());
-                    xMax = Math.max(xMax, daoSteps.get(executeDAO.getStep()).getX());
+            // Setup transition upstream step links
+            if (transitionDAO.getRequiredSteps() != null) {
+                List<Required> requiredStepsDAO = transitionDAO.getRequiredSteps().getRequired();
+                if (requiredStepsDAO.size() == 1) {
+                    Object step = graphSteps.get(requiredStepsDAO.get(0).getStep());
+                    graph.insertEdge(parent, null, null, step, tran);
+                } else if (requiredStepsDAO.size() > 1) {
+                    // Compute concentrator span
+                    int xMin = transitionDAO.getX();
+                    int xMax = transitionDAO.getX();
+                    for (Required required : requiredStepsDAO) {
+                        xMin = Math.min(xMin, daoSteps.get(required.getStep()).getX());
+                        xMax = Math.max(xMax, daoSteps.get(required.getStep()).getX());
+                    }
+                    // Create concentrator
+                    Object concentrator = graph.insertVertex(parent, null, null, xMin * 100, transitionDAO.getY() * 100 - 30, (xMax - xMin) * 100, 1);
+                    graph.insertEdge(parent, null, "", concentrator, tran);
+                    // Link to each Tran
+                    for (Required executeDAO : requiredStepsDAO) {
+                        Object graphStep = graphSteps.get(executeDAO.getStep());
+                        graph.insertEdge(parent, null, executeDAO, graphStep, concentrator);
+                    }
                 }
-                // Create concentrator
-                Object concentrator = graph.insertVertex(parent, null, divergenceDAO, xMin * 100 + 10, daoTransition.getY() * 100 + 50,
-                    (xMax - xMin) * 100 + 60, 1);
-                graph.insertEdge(parent, null, "", graphTransition, concentrator);
-                // Link to each step
-                for (Execute executeDAO : divergenceDAO.getExecute()) {
-                    Object step = graphSteps.get(executeDAO.getStep());
-                    graph.insertEdge(parent, null, executeDAO, concentrator, step);
-                }
-            } else if (someLink instanceof Convergence) {
-                Convergence convergenceDAO = (Convergence) someLink;
-                Object graphTransition = graphTransitions.get(convergenceDAO.getTransition());
-                Transition daoTransition = daoTransitions.get(convergenceDAO.getTransition());
-                // Compute concentrator span
-                int xMin = daoTransition.getX();
-                int xMax = daoTransition.getX();
-                for (Execute executeDAO : convergenceDAO.getExecute()) {
-                    xMin = Math.min(xMin, daoSteps.get(executeDAO.getStep()).getX());
-                    xMax = Math.max(xMax, daoSteps.get(executeDAO.getStep()).getX());
-                }
-                // Create concentrator
-                Object concentrator = graph.insertVertex(parent, null, convergenceDAO, xMin * 100, daoTransition.getY() * 100 - 30, (xMax - xMin) * 100, 1);
-                graph.insertEdge(parent, null, "", concentrator, graphTransition);
-                // Link to each Tran
-                for (Execute executeDAO : convergenceDAO.getExecute()) {
-                    Object graphStep = graphSteps.get(executeDAO.getStep());
-                    graph.insertEdge(parent, null, executeDAO, graphStep, concentrator);
+            }
+
+            // Setup transition downstream step links
+            if (transitionDAO.getExecutedSteps() != null) {
+                List<Executed> executedStepsDAO = transitionDAO.getExecutedSteps().getExecuted();
+                if (executedStepsDAO.size() == 1) {
+                    Object step = graphSteps.get(executedStepsDAO.get(0).getStep());
+                    graph.insertEdge(parent, null, null, tran, step);
+                } else if (executedStepsDAO.size() > 1) {
+                    // Compute concentrator span
+                    int xMin = transitionDAO.getX();
+                    int xMax = transitionDAO.getX();
+                    for (Executed executeDAO : executedStepsDAO) {
+                        xMin = Math.min(xMin, daoSteps.get(executeDAO.getStep()).getX());
+                        xMax = Math.max(xMax, daoSteps.get(executeDAO.getStep()).getX());
+                    }
+                    // Create concentrator
+                    Object concentrator = graph.insertVertex(parent, null, null, xMin * 100 + 10, transitionDAO.getY() * 100 + 50, (xMax - xMin) * 100 + 60, 1);
+                    graph.insertEdge(parent, null, null, tran, concentrator);
+                    // Link to each step
+                    for (Executed executeDAO : executedStepsDAO) {
+                        Object step = graphSteps.get(executeDAO.getStep());
+                        graph.insertEdge(parent, null, executeDAO, concentrator, step);
+                    }
                 }
             }
         }
@@ -152,6 +142,7 @@ public class Test extends GrafcetReader {
         graph.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_EDGE,
             mxConstants.EDGESTYLE_ELBOW /*your desired style e.g. mxConstants.EDGESTYLE_ELBOW*/);
         System.out.println(graph.toString());
+
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
         graphComponent.setConnectable(false);
         //graph.setAllowDanglingEdges(false);
@@ -180,7 +171,7 @@ public class Test extends GrafcetReader {
 
         // necessary for this to work:
         mxCodecRegistry.addPackage("parsing");
-        mxCodecRegistry.register(new mxModelCodec(new parsing.Step()));
+        mxCodecRegistry.register(new mxModelCodec(new com.beetlekhi.grafcet.model.Step()));
 
         try {
 

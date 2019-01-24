@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grafcet>
+	<variables>
+		<variable type="integer" name="x" initial="5"/>
+		<variable type="boolean" name="toto" initial="true"/>
+	</variables>
+	<signals>
+		<signal type="boolean" name="start" initial="false"/>
+	</signals>
+	<steps>
+		<step num="1" x="2" y="1" initial="true">
+			<actions>
+				<action>Do something</action>
+			</actions>
+		</step>
+		<step num="2" x="1" y="3"/>
+		<step num="3" x="2" y="3">
+			<actions>
+				<action>Do some stuff</action>
+				<action>Do more stuff</action>
+			</actions>
+		</step>
+		<step num="4" x="3" y="3"/>
+	</steps>
+	<transitions>
+		<transition num="1" x="1" y="2">
+			<required-steps>
+				<required step="1"/>
+			</required-steps>
+			<condition op="true"/>
+			<executed-steps>
+				<executed step="2"/>
+				<executed step="3"/>
+				<executed step="4"/>
+			</executed-steps>
+		</transition>
+		<transition num="2" x="1" y="4">
+			<required-steps>
+				<required step="2"/>
+			</required-steps>
+			<condition op="bor">
+				<left op="step" value="2"/>
+				<right op="band">
+					<left op="variable" value="toto"/>
+					<right op="true"/>
+				</right>
+			</condition>
+			<executed-steps>
+				<executed step="1"/>
+			</executed-steps>
+		</transition>
+		<transition num="3" x="2" y="4">
+			<required-steps>
+				<required step="3"/>
+				<required step="4"/>
+			</required-steps>
+		</transition>
+	</transitions>
+</grafcet>

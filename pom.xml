@@ -1,44 +1,51 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.beetlekhi</groupId>
-  <artifactId>JGraphcetX</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <description>This Package leverages the JGraphX library to display, animate, and edit grafcets created in JGrafcet</description>
-  <dependencies>
-  	<dependency>
-	    <groupId>com.beetlekhi</groupId>
-	    <artifactId>JGrafcet</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
-	</dependency>
-  	<dependency>
-	    <groupId>com.github.vlsi.mxgraph</groupId>
-	    <artifactId>jgraphx</artifactId>
-	    <version>3.9.8.1</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-	<dependency>
-    	<groupId>org.projectlombok</groupId>
-    	<artifactId>lombok</artifactId>
-    	<version>1.18.4</version>
-    	<scope>provided</scope>
-	</dependency>
-  </dependencies>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <name>JGraphcetX</name>
-  <inceptionYear>2018</inceptionYear>
-  <organization>
-  	<name>Beetle Khi</name>
-  </organization>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.beetlekhi</groupId>
+	<artifactId>JGraphcetX</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>JGraphcetX</name>
+	<description>This Package leverages the JGraphX library to display, animate, and edit grafcets created in JGrafcet</description>
+	<inceptionYear>2018</inceptionYear>
+	<organization>
+		<name>Beetle Khi</name>
+	</organization>
+	<dependencies>
+		<dependency>
+			<groupId>com.beetlekhi</groupId>
+			<artifactId>JGrafcetAnimator</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.vlsi.mxgraph</groupId>
+			<artifactId>jgraphx</artifactId>
+			<version>3.9.8.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
