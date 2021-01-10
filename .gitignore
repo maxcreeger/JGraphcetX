@@ -8,3 +8,5 @@
 test-output/
 node_modules/**
 .orig
+*.iml
+/.idea/

@@ -39,7 +39,7 @@ public class Test {
     }
 
     public static void testLoadXML() throws JAXBException, InterruptedException {
-        displayInJGraph(new File("C:\\Users\\Marmotte\\Git\\JGraphcetX\\src\\main\\resources\\jgrafcetxTest.xml"));
+        displayInJGraph(new File("src\\main\\resources\\jgrafcetxTest.xml"));
     }
 
     public static void displayInJGraph(File file) throws JAXBException {
@@ -52,10 +52,10 @@ public class Test {
                     Object value = ((mxCell) cell).getValue();
                     if (value instanceof Step) {
                         Step step = (Step) value;
-                        return "Step N°" + step.getNum();
+                        return "Step NÂ°" + step.getNum();
                     } else if (value instanceof Transition) {
                         Transition transition = (Transition) value;
-                        return "Transition N°" + transition.getNum();
+                        return "Transition NÂ°" + transition.getNum();
                     }
                 }
                 return super.convertValueToString(cell);
